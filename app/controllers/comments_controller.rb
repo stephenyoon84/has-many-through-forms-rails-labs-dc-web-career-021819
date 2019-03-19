@@ -1,13 +1,19 @@
 class CommentsController < ApplicationController
 
   def create
-    comment = Comment.create(comment_params)
+    if !params[:comment][:user_id].empty?
+      user_data = :user_id
+    else
+      user_data = {:user_attributes => [:username, :email]}
+    end
+    comment = Comment.create!(comment_params(user_data))
+    # byebug
     redirect_to comment.post
   end
 
   private
 
-  def comment_params
-    params.require(:comment).permit(:content, :post_id, :user_id, user_attributes:[:username])
+  def comment_params(args)
+    params.require(:comment).permit(:content, :post_id, args)
   end
 end

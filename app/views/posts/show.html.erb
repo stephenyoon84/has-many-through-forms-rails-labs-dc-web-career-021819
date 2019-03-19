@@ -1,1 +1,28 @@
-
+<h1><%= @post.title %></h1>
+<h3>Category: </h3>
+  <% @post.category_ids.each do |i| %>
+    <%= Category.find(i).name %>
+  <% end %>
+<p><%= @post.content %></p>
+<h5>Comments</h5>
+<ol>
+  <% @post.comments.each do |c| %>
+    <li><%= c.user.username %> says: <%= c.content %></li>
+  <% end %>
+</ol>
+<h6>All commenters</h6>
+<ul>
+  <% @post.users.uniq.each do |u| %>
+    <li><%= link_to "#{u.username}, #{pluralize(u.comments.size, 'time')}", user_path(u) %></li>
+  <% end %>
+</ul>
+<%= form_for @comment do |f| %>
+  <%= f.hidden_field :post_id %>
+  <%= f.text_field :content, placeholder: "Input content" %>
+  <%= f.collection_select :user_id, User.all, :id, :username, include_blank: true %>
+  <%= f.fields_for :user_attributes, @comment.build_user do |u| %>
+    <%= u.text_field :username, placeholder: "New Username" %>
+    <%= u.text_field :email, placeholder: "Input email" %>
+  <% end %>
+  <%= f.submit "Create Comment" %>
+<% end %>
